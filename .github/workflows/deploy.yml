@@ -1,3 +1,5 @@
+name: CI-CD No Docker
+
 on:
   push:
     branches: [main]
@@ -5,37 +7,38 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+
     steps:
-      - name: checkout code
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: setup node
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version:18
-      
-      - name: install dependencies
+          node-version: 18
+
+      - name: Install dependencies
         run: npm install
 
-      - name: run test
-        run: echo"No test yet"
+      - name: Run test
+        run: echo "No test yet"
 
   deploy:
     needs: ci
     runs-on: ubuntu-latest
 
     steps:
-     - name: setup SSH
-     run: |
-        mkdir -p ~/.ssh
-        echo"${{secrets.EC2_KEY}}" > ~/.ssh/ec2_key.pem"
-        chmod 600~/.ssh/id_rsa
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
-      -name: Deploy to EC2
-      run: |
-        ssh -o stricthostkeychecking=no ${{secrets.EC2_USER}}@${{secrets.EC2_HOST}} << 'EOF'
-          cd my-app
-          git pull origin main
-          npm install
-          pm2 restart all || pm2 start app.js
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            cd my-app
+            git pull origin main
+            npm install
+            pm2 restart all || pm2 start app.js
           EOF
